@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">Bayteq</string>
+    <string name="registrar"><![CDATA[¿No tienes una cuenta?  <u>Regístrate</u>]]></string>
+</resources>

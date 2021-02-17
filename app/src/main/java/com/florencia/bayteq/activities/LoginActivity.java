@@ -14,10 +14,12 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.florencia.bayteq.MainActivity;
 import com.florencia.bayteq.R;
 import com.florencia.bayteq.apis.UsuarioApi;
 import com.florencia.bayteq.models.Usuario;
 import com.florencia.bayteq.utils.Constants;
+import com.florencia.bayteq.utils.SQLite;
 import com.florencia.bayteq.utils.Utils;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -60,6 +62,8 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         btnLogin = findViewById(R.id.btnLogin);
         lblNuevo = findViewById(R.id.lblNuevoUsuario);
         lblNuevo.setText(Html.fromHtml(getResources().getString(R.string.registrar)));
+
+        pbProgreso = new ProgressDialog(this);
 
         okHttpClient = new OkHttpClient().newBuilder()
                 .connectTimeout(60, TimeUnit.SECONDS)
@@ -136,30 +140,31 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                                     SQLite.usuario = usuario;
                                     SQLite.usuario.GuardarSesionLocal(context);
                                     pbProgreso.dismiss();
-                                    Intent i = new Intent(actLogin.this, MainActivity.class);
+                                    Intent i = new Intent(LoginActivity.this, MainActivity.class);
                                     startActivity(i);
                                     finish();
                                 }else
-                                    Banner.make(rootView, actLogin.this, Banner.ERROR, Constants.MSG_DATOS_NO_GUARDADOS, Banner.BOTTOM, 2000).show();
+                                    Utils.showMessage(context, Constants.MSG_DATOS_NO_GUARDADOS);
                             } else
-                                Utils.showErrorDialog(actLogin.this,"Error", obj.get("message").getAsString());
+                                Utils.showMessage(context, obj.get("message").getAsString());
                         } else
-                            Banner.make(rootView, actLogin.this, Banner.ERROR, Constants.MSG_USUARIO_CLAVE_INCORRECTO, Banner.BOTTOM, 2000).show();
+                            Utils.showMessage(context, Constants.MSG_USUARIO_CLAVE_INCORRECTO);
 
                     }catch (JsonParseException ex){
-                        Log.d("TAG", ex.getMessage());
+                        Log.d(TAG, ex.getMessage());
                     }
                     pbProgreso.dismiss();
                 }
 
                 @Override
                 public void onFailure(Call<JsonObject> call, Throwable t) {
-                    Utils.showErrorDialog(actLogin.this, "Error",t.getMessage());
+                    Utils.showMessage(context,t.getMessage());
                     Log.d("TAG", t.getMessage());
                     pbProgreso.dismiss();
                 }
             });
         }catch (Exception e){
+            pbProgreso.dismiss();
             Log.d(TAG, e.getMessage());
         }
     }
